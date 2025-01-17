@@ -36,7 +36,7 @@ Before setting up this project, ensure you have:
 lambda/
 │
 ├── main.py                 # Main Python script for the ETL process
-├── requirements.txt        # Python dependencies
+├── requirements.txt        # Project dependencies
 ├── README.md               # Project documentation
 ```
 
