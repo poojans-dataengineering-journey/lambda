@@ -147,9 +147,9 @@ zip -r my-layer.zip python
 2. Upload the ZIP file to AWS Lambda.
 3. Configure the Lambda environment variables:
    - `SECRET_NAME`: AWS Secrets Manager secret name.
-   - `AWS_REGION`: AWS region.
-   - `TABLE_NAME`: Name of the target table in RDS.
-   - `TOPIC_NAME`: Name of the SNS topic.
+   - `REGION_NAME`: AWS region.
+   - `TABLE_NAME` : Name of the target table in RDS.
+   - `TOPIC_NAME` : Name of the SNS topic.
 4. Test the Lambda function with a sample event.
 
 ---
