@@ -9,15 +9,34 @@ import json
 SECRET_NAME = "dev/database-1/salesdb"  # Replace with the name of your secret
 AWS_REGION = "us-east-1"  # Replace with your AWS region (e.g., "us-west-2")
 
-# File path for CSV file
-CSV_FILE_PATH = r'C:\Users\pooja\OneDrive\Desktop\RADE-Data-Engineering\Hackathons\Hackathon-1\IcebreakerHackathon\sales_rds_excercise_full.csv'
-
 # Table name for RDS insertion
 TABLE_NAME = 'sales'
 
 # SNS topic name
 TOPIC_NAME = 'dehtopic'
 
+# CSV file name
+FILE_NAME = 'sales_rds_excercise_full.csv'
+
+def read_csv_from_s3(s3_path):
+    """
+    Read a CSV file from an S3 location into a pandas DataFrame.
+
+    Parameters:
+    - s3_path (str): S3 path to the CSV file (e.g., 's3://your-bucket/your-path/file.csv').
+
+    Returns:
+    - pd.DataFrame: A pandas DataFrame containing the CSV data.
+    """
+    s3_client = boto3.client('s3')
+    bucket, key = s3_path.replace('s3://', '').split('/', 1)
+    
+    try:
+        response = s3_client.get_object(Bucket=bucket, Key=key)
+        df = pd.read_csv(response['Body'])
+        return df
+    except Exception as e:
+        raise Exception(f"Error reading CSV from S3: {e}")
 
 def get_database_secrets():
     """
@@ -141,7 +160,8 @@ def lambda_handler(event, context):
     """
     try:
         # Read the CSV file into a DataFrame
-        df = pd.read_csv(CSV_FILE_PATH)
+        S3_csv_file_path = f's3://dehlive-sales-{get_aws_account_id()}-{AWS_REGION}/raw/maze/{FILE_NAME}'
+        df = read_csv_from_s3(S3_csv_file_path)
         print(f"Read {len(df)} rows from the CSV file.")
         
         # Retrieve database credentials from Secrets Manager

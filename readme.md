@@ -1,28 +1,60 @@
-# Python Project: Data Management with Pandas and SQLAlchemy
+
+# ETL Project Using AWS Services
 
 ## Overview
-This project demonstrates how to efficiently manage and analyze data using **Pandas** and **SQLAlchemy**. It provides functionalities to process datasets, interact with SQL databases, and perform advanced data manipulation tasks.
+
+This project demonstrates an **Extract, Transform, and Load (ETL)** pipeline leveraging **AWS services** such as S3, Lambda, RDS, Secrets Manager, and SNS. The pipeline extracts data from AWS S3, processes it using **Pandas**, and loads it into an RDS MySQL database using **SQLAlchemy**. Additionally, it includes error-handling mechanisms with notifications via AWS SNS.
+
+### Key Features
+- **Data Extraction**: Read CSV files stored in an S3 bucket.
+- **Data Transformation**: Use **Pandas** for preprocessing and cleaning.
+- **Data Loading**: Insert transformed data into an RDS MySQL table.
+- **Secrets Management**: Securely retrieve database credentials using AWS Secrets Manager.
+- **Error Notifications**: Publish failure notifications to an AWS SNS topic.
+- **Scalability**: Designed to run as an AWS Lambda function for serverless execution.
+
+---
 
 ## Prerequisites
-Ensure that you have the following installed:
-- Python 3.7 or above
-- pip (Python package manager)
 
-## Setting Up the Project
+Before setting up this project, ensure you have:
+- Python 3.7 or above installed.
+- An AWS account with appropriate permissions for:
+  - S3
+  - RDS
+  - Secrets Manager
+  - SNS
+  - Lambda
+- AWS CLI installed and configured with credentials.
+- **IAM Roles**: Proper IAM roles with permissions for the Lambda function to access the above services.
 
-Follow these steps to set up the project in your local environment:
+---
+
+## Project Structure
+
+```
+lambda/
+│
+├── main.py                 # Main Python script for the ETL process
+├── requirements.txt        # Python dependencies
+├── README.md               # Project documentation
+```
+
+---
+
+## Setup Instructions
 
 ### 1. Clone the Repository
 ```bash
-# Clone the repository using Git
+# Clone the repository
 $ git clone <repository-url>
 
 # Navigate to the project directory
 $ cd <project-directory>
 ```
 
-### 2. Create a Virtual Environment
-A virtual environment helps isolate project dependencies. Run the following commands to create and activate a virtual environment:
+### 2. Set Up a Virtual Environment
+It is recommended to use a virtual environment to manage dependencies.
 
 #### On Windows
 ```bash
@@ -42,53 +74,48 @@ $ python3 -m venv venv
 $ source venv/bin/activate
 ```
 
-### 3. Install Required Packages
-After activating the virtual environment, install the necessary Python packages listed in the `requirements.txt` file:
-
+### 3. Install Dependencies
+Install the required Python packages:
 ```bash
-# Install dependencies
 $ pip install -r requirements.txt
 ```
 
-#### If `requirements.txt` is unavailable:
-Manually install the required packages:
-```bash
-# Install pandas and SQLAlchemy
-$ pip install pandas sqlalchemy
-```
+### 4. AWS Configuration
+- **S3 Bucket**: Upload your CSV file to an S3 bucket. Note the bucket name and file path.
+- **Secrets Manager**: Store your RDS database credentials in AWS Secrets Manager. Example secret JSON structure:
+  ```json
+  {
+    "username": "your_db_username",
+    "password": "your_db_password",
+    "host": "your_db_host",
+    "dbname": "your_db_name"
+  }
+  ```
+- **RDS MySQL**: Set up an RDS MySQL instance and note the connection details.
+- **SNS Topic**: Create an SNS topic to receive error notifications.
 
-### 4. Verify Installation
-Check that the required libraries have been successfully installed:
-```bash
-$ pip list
-```
-Ensure that `pandas` and `SQLAlchemy` are listed.
+---
 
-## Running the Project
+## Usage
 
-Run the main Python script to execute the project:
-```bash
-$ python main.py
-```
-Replace `main.py` with the name of your project’s primary script.
+### Running Locally
+1. Update the script configuration (e.g., AWS region, secret name, S3 path, and SNS topic).
+2. Run the script:
+   ```bash
+   $ python etl_pipeline.py
+   ```
 
-## Project Structure
-```
-project-directory/
-|
-|-- main.py               # Main script to run the project
-|-- utils/                # Utility scripts (e.g., database connectors, helpers)
-|-- data/                 # Directory for input and output data files
-|-- requirements.txt      # List of project dependencies
-|-- README.md             # Project documentation
-```
+### Deploying to AWS Lambda
+1. Package the script and dependencies as a ZIP file.
+   ```bash
+   $ zip -r etl_pipeline.zip etl_pipeline.py venv/
+   ```
+2. Upload the ZIP file to AWS Lambda.
+3. Configure the Lambda environment variables:
+   - `SECRET_NAME`: AWS Secrets Manager secret name.
+   - `AWS_REGION`: AWS region.
+   - `TABLE_NAME`: Name of the target table in RDS.
+   - `TOPIC_NAME`: Name of the SNS topic.
+4. Test the Lambda function with a sample event.
 
-## Contributing
-Contributions are welcome! If you wish to contribute:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Submit a pull request.
-
-## License
-This project is licensed under the MIT License. See the LICENSE file for details.
-
+---
