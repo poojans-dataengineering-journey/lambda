@@ -102,13 +102,13 @@ $ pip install -r requirements.txt
 1. Update the script configuration (e.g., AWS region, secret name, S3 path, and SNS topic).
 2. Run the script:
    ```bash
-   $ python etl_pipeline.py
+   $ python main.py
    ```
 
 ### Deploying to AWS Lambda
 1. Package the script and dependencies as a ZIP file.
    ```bash
-   $ zip -r etl_pipeline.zip etl_pipeline.py venv/
+   $ zip -r etl_lambda_pipeline.zip main.py venv/
    ```
 2. Upload the ZIP file to AWS Lambda.
 3. Configure the Lambda environment variables:
