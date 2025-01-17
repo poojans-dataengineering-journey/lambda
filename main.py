@@ -1,22 +1,26 @@
 import boto3
 import pandas as pd
+import json
+import os
 from sqlalchemy import create_engine
 from botocore.exceptions import ClientError
-import json
+from dotenv import load_dotenv
 
+# Load .env file
+load_dotenv()
 
 # AWS Secrets Manager details
-SECRET_NAME = "dev/database-1/salesdb"  # Replace with the name of your secret
-AWS_REGION = "us-east-1"  # Replace with your AWS region (e.g., "us-west-2")
+SECRET_NAME = os.environ.get('SECRET_NAME')  # Replace with the name of your secret
+AWS_REGION = os.environ.get('REGION_NAME')  # Replace with your AWS region (e.g., "us-west-2")
 
 # Table name for RDS insertion
-TABLE_NAME = 'sales'
+TABLE_NAME = os.environ.get('TABLE_NAME')
 
 # SNS topic name
-TOPIC_NAME = 'dehtopic'
+TOPIC_NAME = os.environ.get('TOPIC_NAME')
 
 # CSV file name
-FILE_NAME = 'sales_rds_excercise_full.csv'
+FILE_NAME = os.environ.get('FILE_NAME')
 
 def read_csv_from_s3(s3_path):
     """

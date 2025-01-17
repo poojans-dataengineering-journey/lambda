@@ -106,10 +106,44 @@ $ pip install -r requirements.txt
    ```
 
 ### Deploying to AWS Lambda
-1. Package the script and dependencies as a ZIP file.
-   ```bash
-   $ zip -r etl_lambda_pipeline.zip main.py venv/
-   ```
+
+1. Package the each of the dependencies as a ZIP file to be added as layers in AWS Lambda Console.
+
+#### 1. Create a Lambda Layer Directory
+Start by creating a directory structure for the custom layer. This will help organize the layer and its dependencies.
+
+```bash
+mkdir my-layer
+mkdir my-layer/python
+```
+
+In this structure:
+- `my-layer` is the main directory for the layer.
+- `my-layer/python` is where the Python dependencies will go (this is the folder AWS Lambda expects).
+
+#### 2. Install Dependencies Locally in the Layer Directory
+Next, you need to install the Python dependencies (like `pandas`, `sqlalchemy`, `pymysql`, etc.) into the `python` directory.
+For example, if you want to use `sqlalchemy` and `pymysql`, follow these steps:
+
+#### Using pip to Install Dependencies:
+Navigate to the `python` directory inside the layer directory and install the required packages using `pip`:
+
+```bash
+cd my-layer/python
+pip install sqlalchemy pymysql -t .
+```
+
+This will install the packages into the `my-layer/python/` folder.
+- `-t .`: Installs the dependencies into the current directory (`my-layer/python/`).
+
+#### 3. Create the Layer ZIP File
+Once you have installed the dependencies, the `python` directory will contain all the libraries needed for the Lambda function. Now, zip this directory into a layer ZIP file.
+Navigate back to the `my-layer` directory and create the ZIP:
+
+```bash
+cd ..
+zip -r my-layer.zip python
+```
 2. Upload the ZIP file to AWS Lambda.
 3. Configure the Lambda environment variables:
    - `SECRET_NAME`: AWS Secrets Manager secret name.
