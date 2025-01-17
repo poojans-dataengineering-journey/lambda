@@ -5,6 +5,7 @@ import os
 from sqlalchemy import create_engine
 from botocore.exceptions import ClientError
 from dotenv import load_dotenv
+from datetime import datetime
 
 # Load .env file
 load_dotenv()
@@ -152,7 +153,25 @@ def get_aws_account_id():
     except Exception as e:
         print(f"Error occurred while fetching AWS account ID: {e}")
         return None
+    
+def archive_file(s3_client, source_bucket, source_key, destination_bucket, destination_key):
+    """
+    Archive a file from one S3 location to another.
 
+    Parameters:
+    - s3_client (boto3.client): The S3 client.
+    - source_bucket (str): The source S3 bucket.
+    - source_key (str): The source S3 key.
+    - destination_bucket (str): The destination S3 bucket.
+    - destination_key (str): The destination S3 key.
+    """
+    try:
+        copy_source = {'Bucket': source_bucket, 'Key': source_key}
+        s3_client.copy(copy_source, destination_bucket, destination_key)
+        s3_client.delete_object(Bucket=source_bucket, Key=source_key)
+        print(f"File archived to {destination_bucket}/{destination_key}.")
+    except Exception as e:
+        raise Exception(f"Error archiving file: {e}")
 
 def lambda_handler(event, context):
     """
@@ -176,6 +195,15 @@ def lambda_handler(event, context):
         
         # Insert data into the RDS MySQL table
         insert_into_rds(engine, df)
+
+         # Archive the file
+        s3_client = boto3.client('s3')
+        source_bucket, source_key = S3_csv_file_path.replace('s3://', '').split('/', 1)
+        archive_date = datetime.now().strftime('%m-%d-%Y')
+        destination_bucket = source_bucket
+        destination_key = f'archive/maze/{archive_date}/{FILE_NAME}'
+
+        archive_file(s3_client, source_bucket, source_key, destination_bucket, destination_key)
         
         return {"statusCode": 200, "body": "Data successfully inserted into RDS"}
     
